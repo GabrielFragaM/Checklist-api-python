@@ -161,7 +161,7 @@ def get_data_checklists():
 
     return jsonify(dict_json)
 
-####METODO PARA PEGAR CHECKLISTS DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR TODAS AS CHECKLISTS DO USUARIO DO FIREBASE############
 @app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
 def get_all_checklists():
     Account_Checklists = str(request.args['Account'])
@@ -179,11 +179,38 @@ def get_all_checklists():
             'deleted_categoria': c.get('deleted_categoria'), 'descricao': c.get('descricao'), 
             'observacao': c.get('observacao'), 'title': c.get('title'), 'itens': len(perguntas_Checklists),}
             list_checklists.append(dict_checklists)
-        dict_checklists = {'checklists': list_checklists}
-        return dict_checklists
+        json_list = json.dumps(list_checklists)
+        return json_list
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
+####METODO PARA PEGAR UMA CHECKLIST DO USUARIO DO FIREBASE############
+@app.route('/api/checklists/get_data/checklist/', methods=['GET', 'POST'])
+def get_checklist():
+    Account_Checklist = str(request.args['Account'])
+    Account_Checklist = Account_Checklist.split('-')
+
+    User_id = Account_Checklist[0]
+    checklist = Account_Checklist[1]
+    list_perguntas = []
+    
+    #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
+    Checklist_Firebase = db.collection('accounts').document(User_id).collection('checklists').document(checklist).get()
+    perguntas_Checklists = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').get()
+
+    try:
+        for p in perguntas_Checklists:
+            details_perguntas = db.collection('accounts').document(User_id).collection('checklists').document(Checklist_Firebase.id).collection('perguntas').document(p.id).get()
+            list_perguntas.append({'uid_pergunta': details_perguntas.get('pergunta'),
+                'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
+            })
+        dict_checklists = {'uid_checklist': Checklist_Firebase.id, 'CategoriasID': Checklist_Firebase.get('CategoriasID'), 
+        'deleted_categoria': Checklist_Firebase.get('deleted_categoria'), 'descricao': Checklist_Firebase.get('descricao'), 
+        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists), 'perguntas': list_perguntas}
+        
+        return dict_checklists
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
 ####METODO PARA LOGAR UM USUARIO DO FIREBASE############
 @app.route('/api/accounts/get_data/', methods=['GET', 'POST'])
