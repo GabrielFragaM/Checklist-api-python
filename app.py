@@ -165,12 +165,10 @@ def get_data_checklists():
 @app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
 def get_all_checklists():
     Account_Checklists = str(request.args['Account'])
-    
     dict_checklists = {}
     list_checklists = []
     #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
     Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').get()
-
     try:
         for c in Checklists:
             perguntas_Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').document(c.id).collection('perguntas').get()
@@ -192,25 +190,57 @@ def get_checklist():
 
     User_id = Account_Checklist[0]
     checklist = Account_Checklist[1]
-    list_perguntas = []
     
     #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
     Checklist_Firebase = db.collection('accounts').document(User_id).collection('checklists').document(checklist).get()
     perguntas_Checklists = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').get()
-
     try:
-        for p in perguntas_Checklists:
-            details_perguntas = db.collection('accounts').document(User_id).collection('checklists').document(Checklist_Firebase.id).collection('perguntas').document(p.id).get()
-            list_perguntas.append({'uid_pergunta': details_perguntas.get('pergunta'),
-                'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
-            })
         dict_checklists = {'uid_checklist': Checklist_Firebase.id, 'CategoriasID': Checklist_Firebase.get('CategoriasID'), 
         'deleted_categoria': Checklist_Firebase.get('deleted_categoria'), 'descricao': Checklist_Firebase.get('descricao'), 
-        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists), 'perguntas': list_perguntas}
-        
+        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists)}
         return dict_checklists
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+
+####METODO PARA PEGAR UMA PERGUNTA DE UMA CHECKLIST DO USUARIO DO FIREBASE############
+@app.route('/api/checklists/get_data/perguntas/get/', methods=['GET', 'POST'])
+def get_pergunta():
+    Account_Checklist = str(request.args['Account'])
+    Account_Checklist = Account_Checklist.split('/')
+    User_id = Account_Checklist[0]
+    checklist = Account_Checklist[1]
+    pergunta = Account_Checklist[2]
+    dict_pergunta = {}
+
+    pergunta = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').document(pergunta).get()
+    try:
+        dict_pergunta = {'uid_pergunta': pergunta.id,'pergunta': pergunta.get('pergunta'),
+                'observacao': pergunta.get('observacao'),'images': pergunta.get('images'),
+            }
+        return dict_pergunta
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
+
+####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST DO USUARIO DO FIREBASE############
+@app.route('/api/checklists/get_data/perguntas/', methods=['GET', 'POST'])
+def get_perguntas():
+    Account_Checklist = str(request.args['Account'])
+    Account_Checklist = Account_Checklist.split('-')
+    User_id = Account_Checklist[0]
+    checklist = Account_Checklist[1]
+    list_perguntas = []
+
+    perguntas_Checklists = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').get()
+    try:
+        for p in perguntas_Checklists:
+            details_perguntas = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').document(p.id).get()
+            list_perguntas.append({'uid_pergunta': p.id,'pergunta': details_perguntas.get('pergunta'),
+                'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
+            })
+        json_list = json.dumps(list_perguntas)
+        return json_list
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
 
 ####METODO PARA LOGAR UM USUARIO DO FIREBASE############
 @app.route('/api/accounts/get_data/', methods=['GET', 'POST'])
