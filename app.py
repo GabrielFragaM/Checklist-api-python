@@ -161,6 +161,110 @@ def get_data_checklists():
 
     return jsonify(dict_json)
 
+
+####METODO PARA PEGAR TODAS AS VERIFICACOES DO USUARIO DO FIREBASE############
+@app.route('/api/verificacoes/get_data/', methods=['GET', 'POST'])
+def get_all_verificacoes():
+    Account_Verificacoes = str(request.args['Account'])
+    list_verificacoes = []
+    list_nao_aplicavel_details = []
+    list_conformes_details = []
+    list_nao_conformes_details = []
+    list_verificacoes = []
+    #####ESTRUTURANDO TODAS AS VERIFICACOES DOS OS USUARIOS####################
+    try:
+        verificacoes_total = db.collection('accounts').document(Account_Verificacoes).collection('verificacoes').get()
+        for v in verificacoes_total:
+            conformes_verificacao = db.collection('accounts').document(Account_Verificacoes).collection(
+                'verificacoes').document(v.id).collection('conformes').get()
+            for c in conformes_verificacao:
+                list_conformes_details.append(
+                    {'uid_conforme': c.id, 'pergunta': c.get('pergunta'), 'images': c.get('images'),
+                        'situacao': c.get('situacao'), 'comentario': c.get('comentario')})
+
+            nao_conformes_verificacao = db.collection('accounts').document(Account_Verificacoes).collection(
+                'verificacoes').document(v.id).collection('nao_conformes').get()
+            for nc in nao_conformes_verificacao:
+                list_nao_conformes_details.append(
+                    {'uid_conforme': nc.id, 'pergunta': nc.get('pergunta'), 'images': nc.get('images'),
+                        'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+            nao_aplicavel_verificacao = db.collection('accounts').document(Account_Verificacoes).collection(
+                'verificacoes').document(v.id).collection('nao_aplicavel').get()
+            for na in nao_aplicavel_verificacao:
+                list_nao_aplicavel_details.append(
+                    {'uid_conforme': na.id, 'pergunta': na.get('pergunta'), 'images': na.get('images'),
+                        'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+            list_verificacoes.append({'aplicado_por': v.get('aplicado_por'), 'cargo': v.get('cargo'),
+                                        'data_checklist': v.get('data_checklist'),
+                                        'name_checklist': v.get('name_checklist'), 'total_c': v.get('total_c'),
+                                        'total_nc': v.get('total_nc'), 'total_na': v.get('total_na'),
+                                        'uid_checklist': v.get('uid_checklist'),
+                                        'uid_verfication': v.get('uid_verfication'),
+                                        'nao_aplicavel': list_nao_aplicavel_details,
+                                        'nao_conformes': list_nao_conformes_details, 'conformes': list_conformes_details,
+                                        })
+
+        json_list = json.dumps(list_verificacoes)
+        return json_list
+
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+
+####METODO PARA PEGAR TODAS AS VERIFICACOES DO USUARIO DO FIREBASE############
+@app.route('/api/verificacoes/get_data/verificacao/', methods=['GET', 'POST'])
+def get_verificacao():
+    Account_Verificacoe = str(request.args['Account'])
+    Account_Checklist = Account_Verificacoes = str(request.args['Account']).split('/')
+    User_id = Account_Checklist[0]
+    verificacao = Account_Checklist[1]
+    dict_verificacao = {}
+    list_nao_aplicavel_details = []
+    list_conformes_details = []
+    list_nao_conformes_details = []
+    list_verificacoes = []
+    #####ESTRUTURANDO TODAS AS VERIFICACOES DOS OS USUARIOS####################
+    try:
+        verificacoe_details = db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).get()
+ 
+        conformes_verificacao = db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).collection('conformes').get()
+        for c in conformes_verificacao:
+            list_conformes_details.append(
+                {'uid_conforme': c.id, 'pergunta': c.get('pergunta'), 'images': c.get('images'),
+                    'situacao': c.get('situacao'), 'comentario': c.get('comentario')})
+
+        nao_conformes_verificacao = db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).collection('nao_conformes').get()
+        for nc in nao_conformes_verificacao:
+            list_nao_conformes_details.append(
+                {'uid_conforme': nc.id, 'pergunta': nc.get('pergunta'), 'images': nc.get('images'),
+                    'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+        nao_aplicavel_verificacao = db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).collection('nao_aplicavel').get()
+        for na in nao_aplicavel_verificacao:
+            list_nao_aplicavel_details.append(
+                {'uid_conforme': na.id, 'pergunta': na.get('pergunta'), 'images': na.get('images'),
+                    'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+        dict_verificacao = {'aplicado_por': verificacoe_details.get('aplicado_por'), 'cargo': verificacoe_details.get('cargo'),
+                                    'data_checklist': verificacoe_details.get('data_checklist'),
+                                    'name_checklist': verificacoe_details.get('name_checklist'), 
+                                    'total_c': verificacoe_details.get('total_c'),
+                                    'total_nc': verificacoe_details.get('total_nc'), 
+                                    'total_na': verificacoe_details.get('total_na'),
+                                    'uid_checklist': verificacoe_details.get('uid_checklist'),
+                                    'uid_verfication': verificacoe_details.get('uid_verfication'),
+                                    'nao_aplicavel': list_nao_aplicavel_details,
+                                    'nao_conformes': list_nao_conformes_details, 
+                                    'conformes': list_conformes_details,
+                                    }
+
+        return dict_verificacao
+
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+
+
 ####METODO PARA PEGAR TODAS AS CHECKLISTS DO USUARIO DO FIREBASE############
 @app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
 def get_all_checklists():
@@ -186,7 +290,7 @@ def get_all_checklists():
 @app.route('/api/checklists/get_data/checklist/', methods=['GET', 'POST'])
 def get_checklist():
     Account_Checklist = str(request.args['Account'])
-    Account_Checklist = Account_Checklist.split('-')
+    Account_Checklist = Account_Checklist.split('/')
 
     User_id = Account_Checklist[0]
     checklist = Account_Checklist[1]
@@ -225,7 +329,7 @@ def get_pergunta():
 @app.route('/api/checklists/get_data/perguntas/', methods=['GET', 'POST'])
 def get_perguntas():
     Account_Checklist = str(request.args['Account'])
-    Account_Checklist = Account_Checklist.split('-')
+    Account_Checklist = Account_Checklist.split('/')
     User_id = Account_Checklist[0]
     checklist = Account_Checklist[1]
     list_perguntas = []
@@ -246,7 +350,7 @@ def get_perguntas():
 @app.route('/api/accounts/get_data/', methods=['GET', 'POST'])
 def get_data_accounts():
     Account = str(request.args['Account'])
-    Account = Account.split('-')
+    Account = Account.split('/')
 
     email = Account[0]
     password = Account[1]
