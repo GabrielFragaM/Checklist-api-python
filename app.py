@@ -14,7 +14,7 @@ initialize_app(cred, {'storageBucket': 'gererador-qr-code.appspot.com'})
 db = firestore.client()
 
 
-@app.route('/api/checklist/get_data/', methods=['GET', 'POST'])
+@app.route('/api/check/get_data/', methods=['GET', 'POST'])
 def get_data_checklists():
     dict_json = {}
     list_checklists = []
@@ -161,6 +161,29 @@ def get_data_checklists():
 
     return jsonify(dict_json)
 
+####METODO PARA PEGAR CHECKLISTS DO USUARIO DO FIREBASE############
+@app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
+def get_all_checklists():
+    Account_Checklists = str(request.args['Account'])
+    
+    dict_checklists = {}
+    list_checklists = []
+    #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
+    Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').get()
+
+    try:
+        for c in Checklists:
+            perguntas_Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').document(c.id).collection('perguntas').get()
+
+            dict_checklists = {'uid_checklist': c.id, 'CategoriasID': c.get('CategoriasID'), 
+            'deleted_categoria': c.get('deleted_categoria'), 'descricao': c.get('descricao'), 
+            'observacao': c.get('observacao'), 'title': c.get('title'), 'itens': len(perguntas_Checklists),}
+            list_checklists.append(dict_checklists)
+        dict_checklists = {'checklists': list_checklists}
+        return dict_checklists
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+
 
 ####METODO PARA LOGAR UM USUARIO DO FIREBASE############
 @app.route('/api/accounts/get_data/', methods=['GET', 'POST'])
@@ -174,7 +197,7 @@ def get_data_accounts():
         user = auth.get_user_by_email(email)
         account = db.collection('accounts').document(user.uid).get()
         if (account.get('password') == password):
-            dict_account_auth = {'uid_account': user.uid, 'email': email, 'name': account.get('name')}
+            dict_account_auth = {'Id': user.uid, 'Email': email, 'UserName': account.get('name')}
             return dict_account_auth
         else:
             return 'Usuário ou senha incorretos.'
