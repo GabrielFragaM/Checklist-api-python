@@ -21,15 +21,10 @@ def edit_checklist():
     json_data_edit_checklist = request.json
     User_id = json_data_edit_checklist['user_id']
     checklist = json_data_edit_checklist['uid_checklist']
-    descricao = json_data_edit_checklist['descricao']
-    observacao = json_data_edit_checklist['observacao']
-    title = json_data_edit_checklist['title']
-
-    dict_checklists = { 'descricao': descricao, 
-        'observacao': observacao, 'title': title}
+ 
 
     #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
-    db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
+    db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(json_data_edit_checklist)
 
     return json_data_edit_checklist
 
