@@ -64,6 +64,30 @@ def detele_checklist():
         response = jsonify({'message':'Não foi possível deletar a checklist. Mais detalhes: ' + str(e)})
         return response, 500
 
+####METODO DELETAR VERIFICACAO############
+@app.route('/api/verificacoes/delete_data/verificacao/', methods=['GET'])
+def detele_verificacao():
+    try:
+        json_data_delete_checklist = str(request.args['Account'])
+        json_data_delete_checklist = json_data_delete_checklist.split('/')
+        User_id = json_data_delete_checklist[0]
+        verificacao = json_data_delete_checklist[1]
+    
+        #####EDITANDO OS DADOS DA CHECKLIST####################
+        db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).delete()
+        try:
+            checklits_data = db.collection('accounts').document(User_id).collection('checklists').get()
+            for c in checklits_data:
+                db.collection('accounts').document(User_id).collection('checklists').document(c.id).collection('verificacoes').document(verificacao).delete()
+        except:
+            pass
+        response = jsonify({'message':'Verificação deletada com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível deletar a Verificação. Mais detalhes: ' + str(e)})
+        return response, 500
+
+
 ####METODO CRIAR CHECKLIST############
 @app.route('/api/checklists/create_data/checklist/', methods=['POST'])
 def create_checklist():
