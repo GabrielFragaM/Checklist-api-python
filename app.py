@@ -24,8 +24,15 @@ def edit_checklist():
         checklist = json_data_edit_checklist['uid_checklist']
     
 
-        #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
+        #####EDITANDO OS DADOS DA CHECKLIST####################
         db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(json_data_edit_checklist)
+        try:
+            categorias_data = db.collection('accounts').document(User_id).collection('categorias').get()
+            if(len(categorias_data) != 0):
+                for cat in categorias_data:
+                    db.collection('accounts').document(User_id).collection('categorias').document(cat.id).collection('checklists').document(checklist).update(json_data_edit_checklist)
+        except:
+            pass
         response = jsonify({'message':'Editado com sucesso.'})
         return response, 200
     except:
