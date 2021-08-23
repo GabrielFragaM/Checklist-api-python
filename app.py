@@ -16,7 +16,7 @@ db = firestore.client()
 #################CRUD API#######################
 
 ####METODO EDITAR CHECKLIST############
-@app.route('/api/checklists/edit_data/checklist/', methods=['POST'])
+@app.route('/api/checklists/edit_data/checklist/', methods=['PUT'])
 def edit_checklist():
     json_data_edit_checklist = request.json
     User_id = json_data_edit_checklist['user_id']
