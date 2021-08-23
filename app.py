@@ -174,7 +174,6 @@ def create_pergunta():
 @app.route('/api/painel/get_data/', methods=['GET'])
 def get_dashbord():
     Account_Verificacoes = str(request.args['Account'])
-    itens = 0
     try:
         verificacoes = db.collection('accounts').document(Account_Verificacoes).collection('verificacoes').get()
         for v in verificacoes:
@@ -185,11 +184,11 @@ def get_dashbord():
         planos_de_acao = db.collection('accounts').document(Account_Verificacoes).collection('planos_de_acao').get()
         
         dict_painel = {'conformes': len(conformes) / itens* 100, 'nao_conformes': len(nao_conformes) / itens * 100, 'planos_de_acao': len(planos_de_acao) / itens * 100, 'nao_aplicavel': len(nao_aplicavel) / itens * 100}
-       
-        return dict_painel
-
+        response = jsonify(dict_painel)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar o painel dessa conta.\nMais detalhes: ' + str(e)
+        response = jsonify({'message':'Erro. Não foi possível acessar o painel dessa conta.'})
+        return response, 500
 
 #####METODO PARA PEGAR TODAS AS VERIFICACOES############
 @app.route('/api/verificacoes/get_data/', methods=['GET'])
