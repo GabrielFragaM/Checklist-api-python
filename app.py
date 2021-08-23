@@ -236,10 +236,12 @@ def get_all_verificacoes():
                                         })
 
         json_list = json.dumps(list_verificacoes)
-        return json_list
-
+        response = jsonify(json_list)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar as verificações dessa conta.'})
+        return response, 500
+
 
 ####METODO PARA PEGAR UMA VERIFICACAO############
 @app.route('/api/verificacoes/get_data/verificacao/', methods=['GET'])
@@ -289,10 +291,12 @@ def get_verificacao():
                                     'conformes': list_conformes_details,
                                     }
 
-        return dict_verificacao
-
+        response = jsonify(dict_verificacao)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar as checklists dessa conta.'})
+        return response, 500
+  
 
 ####METODO PARA PEGAR TODAS AS CHECKLISTS############
 @app.route('/api/checklists/get_data/', methods=['GET'])
@@ -317,9 +321,11 @@ def get_all_checklists():
             list_checklists.append(dict_checklists)
             list_perguntas = []
         json_list = json.dumps(list_checklists)
-        return json_list
+        response = jsonify(json_list)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar as checklists dessa conta.'})
+        return response, 500
 
 ####METODO PARA PEGAR UMA CHECKLIST############
 @app.route('/api/checklists/get_data/checklist/', methods=['GET'])
@@ -327,6 +333,11 @@ def get_checklist():
     Account_Checklist = str(request.args['Account'])
     Account_Checklist = Account_Checklist.split('/')
     list_perguntas = []
+    list_verificacoes = []
+    list_nao_aplicavel_details = []
+    list_conformes_details = []
+    list_nao_conformes_details = []
+    list_verificacoes = []
     User_id = Account_Checklist[0]
     checklist = Account_Checklist[1]
     
@@ -340,12 +351,49 @@ def get_checklist():
                 'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
             })
 
+        verificacoes_total = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('verificacoes').get()
+        for v in verificacoes_total:
+            conformes_verificacao = db.collection('accounts').document(User_id).collection(
+                'verificacoes').document(v.id).collection('conformes').get()
+            for c in conformes_verificacao:
+                list_conformes_details.append(
+                    {'uid_conforme': c.id, 'pergunta': c.get('pergunta'), 'images': c.get('images'),
+                        'situacao': c.get('situacao'), 'comentario': c.get('comentario')})
+
+            nao_conformes_verificacao = db.collection('accounts').document(User_id).collection(
+                'verificacoes').document(v.id).collection('nao_conformes').get()
+            for nc in nao_conformes_verificacao:
+                list_nao_conformes_details.append(
+                    {'uid_conforme': nc.id, 'pergunta': nc.get('pergunta'), 'images': nc.get('images'),
+                        'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+            nao_aplicavel_verificacao = db.collection('accounts').document(User_id).collection(
+                'verificacoes').document(v.id).collection('nao_aplicavel').get()
+            for na in nao_aplicavel_verificacao:
+                list_nao_aplicavel_details.append(
+                    {'uid_conforme': na.id, 'pergunta': na.get('pergunta'), 'images': na.get('images'),
+                        'comentario': c.get('comentario'), 'situacao': c.get('situacao'), })
+
+            list_verificacoes.append({'aplicado_por': v.get('aplicado_por'), 'cargo': v.get('cargo'),
+                                        'data_checklist': v.get('data_checklist'),
+                                        'name_checklist': v.get('name_checklist'), 'total_c': v.get('total_c'),
+                                        'total_nc': v.get('total_nc'), 'total_na': v.get('total_na'),
+                                        'uid_checklist': v.get('uid_checklist'),
+                                        'uid_verfication': v.get('uid_verfication'),
+                                        'nao_aplicavel': list_nao_aplicavel_details,
+                                        'pdf': v.get('pdf'),
+                                        'nao_conformes': list_nao_conformes_details, 'conformes': list_conformes_details,
+                                        })
+
         dict_checklists = {'uid_checklist': Checklist_Firebase.id, 'CategoriasID': Checklist_Firebase.get('CategoriasID'), 
         'deleted_categoria': Checklist_Firebase.get('deleted_categoria'), 'descricao': Checklist_Firebase.get('descricao'), 
-        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists), 'perguntas': list_perguntas,}
-        return dict_checklists
+        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists),'verificacoes': list_verificacoes, 'perguntas': list_perguntas,}
+        
+        response = jsonify(dict_checklists)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar a checklist dessa conta.'})
+        return response, 500
 
 ####METODO PARA PEGAR UMA PERGUNTA DE UMA CHECKLIST############
 @app.route('/api/checklists/get_data/perguntas/get/', methods=['GET'])
@@ -362,9 +410,12 @@ def get_pergunta():
         dict_pergunta = {'uid_pergunta': pergunta.id,'pergunta': pergunta.get('pergunta'),
                 'observacao': pergunta.get('observacao'),'images': pergunta.get('images'),
             }
-        return dict_pergunta
+
+        response = jsonify(dict_pergunta)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar esse Item dessa conta.'})
+        return response, 500
 
 ####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST############
 @app.route('/api/checklists/get_data/perguntas/', methods=['GET'])
@@ -383,9 +434,11 @@ def get_all_perguntas():
                 'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
             })
         json_list = json.dumps(list_perguntas)
-        return json_list
+        response = jsonify(json_list)
+        return response, 200
     except Exception as e:
-        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
+        response = jsonify({'message': 'Erro. Não foi possível acessar os Itens dessa conta.'})
+        return response, 500
 
 ####METODO PARA LOGAR UM USUARIO DO FIREBASE############
 @app.route('/api/accounts/get_data/', methods=['GET'])
@@ -421,9 +474,11 @@ def get_user():
                 'name': user.get('name'),'email': user.get('email'),'password': user.get('password'),
                 'equipes_salvas': user.get('equipes_salvas'),
             }
-        return dict_pergunta
-    except Exception as e:
-        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
+        response = jsonify(dict_pergunta)
+        return response, 200
+    except:
+        response = jsonify({'message':'Erro ao buscar o Usuário'})
+        return response, 500
 
 ####METODO PARA EDITAR A CONTA DO USUÁRIO############
 @app.route('/api/accounts/edit_data/account/', methods=['PUT'])
