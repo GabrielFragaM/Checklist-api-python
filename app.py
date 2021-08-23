@@ -18,15 +18,20 @@ db = firestore.client()
 ####METODO EDITAR CHECKLIST############
 @app.route('/api/checklists/edit_data/checklist/', methods=['PUT'])
 def edit_checklist():
-    json_data_edit_checklist = request.json
-    User_id = json_data_edit_checklist['user_id']
-    checklist = json_data_edit_checklist['uid_checklist']
- 
+    try:
+        json_data_edit_checklist = request.json
+        User_id = json_data_edit_checklist['user_id']
+        checklist = json_data_edit_checklist['uid_checklist']
+    
 
-    #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
-    db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(json_data_edit_checklist)
-
-    return json_data_edit_checklist
+        #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
+        db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(json_data_edit_checklist)
+        response = jsonify({'message':'Editado com sucesso.'})
+        return response, 200
+    except:
+        response = jsonify({'message':'Não foi possível editar a checklist.'})
+        return response, 500
+        
 
 
 
