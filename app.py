@@ -283,8 +283,7 @@ def get_all_verificacoes():
                                         'nao_conformes': list_nao_conformes_details, 'conformes': list_conformes_details,
                                         })
 
-        json_list = json.dumps(list_verificacoes)
-        response = jsonify(json_list)
+        response = jsonify(list_verificacoes)
         return response, 200
     except Exception as e:
         response = jsonify({'message': 'Erro. Não foi possível acessar as verificações dessa conta.'})
@@ -368,8 +367,8 @@ def get_all_checklists():
             'observacao': c.get('observacao'), 'title': c.get('title'), 'itens': len(perguntas_Checklists),'perguntas': list_perguntas,}
             list_checklists.append(dict_checklists)
             list_perguntas = []
-        json_list = json.dumps(list_checklists)
-        response = jsonify(json_list)
+
+        response = jsonify(list_checklists)
         return response, 200
     except Exception as e:
         response = jsonify({'message': 'Erro. Não foi possível acessar as checklists dessa conta.'})
