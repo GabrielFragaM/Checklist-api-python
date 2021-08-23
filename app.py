@@ -158,6 +158,7 @@ def get_all_verificacoes():
                                         'uid_checklist': v.get('uid_checklist'),
                                         'uid_verfication': v.get('uid_verfication'),
                                         'nao_aplicavel': list_nao_aplicavel_details,
+                                        'pdf': v.get('pdf'),
                                         'nao_conformes': list_nao_conformes_details, 'conformes': list_conformes_details,
                                         })
 
@@ -209,6 +210,7 @@ def get_verificacao():
                                     'total_na': verificacoe_details.get('total_na'),
                                     'uid_checklist': verificacoe_details.get('uid_checklist'),
                                     'uid_verfication': verificacoe_details.get('uid_verfication'),
+                                    'pdf': verificacoe_details.get('pdf'),
                                     'nao_aplicavel': list_nao_aplicavel_details,
                                     'nao_conformes': list_nao_conformes_details, 
                                     'conformes': list_conformes_details,
