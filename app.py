@@ -491,11 +491,10 @@ def get_all_perguntas():
 def get_data_accounts():
     Account = str(request.args['Account'])
     Account = Account.split('/')
-
     email = Account[0]
     password = Account[1]
     try:
-        user = auth.get_user_by_email(email)
+        user = auth.get(email)
         account = db.collection('accounts').document(user.uid).get()
         if (account.get('password') == password):
             dict_account_auth = {'Id': user.uid, 'Email': email, 'UserName': account.get('name')}
@@ -517,7 +516,7 @@ def get_user():
     user = db.collection('accounts').document(User_id).get()
     try:
         dict_pergunta = {'user_id': user.id,'cargo': user.get('cargo'),
-                'name': user.get('name'),'email': user.get('email'),'password': user.get('password'),
+                'name': user.get('name'),'email': user.get('email'),
                 'equipes_salvas': user.get('equipes_salvas'),
             }
         response = jsonify(dict_pergunta)
