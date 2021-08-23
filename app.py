@@ -68,10 +68,10 @@ def detele_checklist():
 @app.route('/api/verificacoes/delete_data/verificacao/', methods=['GET'])
 def detele_verificacao():
     try:
-        json_data_delete_checklist = str(request.args['Account'])
-        json_data_delete_checklist = json_data_delete_checklist.split('/')
-        User_id = json_data_delete_checklist[0]
-        verificacao = json_data_delete_checklist[1]
+        json_data_delete_verificacao = str(request.args['Account'])
+        json_data_delete_verificacao = json_data_delete_verificacao.split('/')
+        User_id = json_data_delete_verificacao[0]
+        verificacao = json_data_delete_verificacao[1]
     
         #####EDITANDO OS DADOS DA CHECKLIST####################
         db.collection('accounts').document(User_id).collection('verificacoes').document(verificacao).delete()
@@ -86,7 +86,6 @@ def detele_verificacao():
     except Exception as e:
         response = jsonify({'message':'Não foi possível deletar a Verificação. Mais detalhes: ' + str(e)})
         return response, 500
-
 
 ####METODO CRIAR CHECKLIST############
 @app.route('/api/checklists/create_data/checklist/', methods=['POST'])
@@ -118,7 +117,57 @@ def create_checklist():
         return response, 500
 ############################################################
 
+####METODO EDITAR PERGUNTAS############
+@app.route('/api/perguntas/edit_data/pergunta/', methods=['PUT'])
+def edit_pergunta():
+    try:
+        json_data_edit_pergunta = request.json
+        User_id = json_data_edit_pergunta['user_id']
+        pergunta = json_data_edit_pergunta['uid_pergunta']
+        checklist = json_data_edit_pergunta['uid_checklist']
 
+        #####EDITANDO OS DADOS DA CHECKLIST####################
+        db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').document(pergunta).update(json_data_edit_pergunta)
+        try:
+            categorias_data = db.collection('accounts').document(User_id).collection('categorias').get()
+            if(len(categorias_data) != 0):
+                for cat in categorias_data:
+                    db.collection('accounts').document(User_id).collection('categorias').document(cat.id).collection('checklists').document(checklist).collection('perguntas').document(pergunta).update(json_data_edit_pergunta)
+        except:
+            pass
+        response = jsonify({'message':'Editado com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível editar o item.' + str(e)})
+        return response, 500
+
+####METODO CRIAR PERGUNTAS############
+@app.route('/api/perguntas/create_data/pergunta/', methods=['POST'])
+def create_pergunta():
+    try:
+        json_data_edit_checklist = request.json
+        User_id = json_data_edit_checklist['user_id']
+        checklist = json_data_edit_checklist['checklist']
+        images = json_data_edit_checklist['images']
+        observacao = json_data_edit_checklist['observacao']
+        pergunta = json_data_edit_checklist['pergunta']
+
+        dict_pergunta = {'images': images, 'observacao': observacao, 'pergunta': pergunta,
+        }
+
+        db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').add(dict_pergunta)
+        try:
+            categorias_data = db.collection('accounts').document(User_id).collection('categorias').get()
+            if(len(categorias_data) != 0):
+                for cat in categorias_data:
+                    db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').add(dict_pergunta)
+        except:
+            pass
+        response = jsonify({'message':'Item criado com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível criar um novo Item. Mais detalhes: ' + str(e)})
+        return response, 500
 ################ACESSAR DADOS DO FIREBASE####################
 
 #####METODO PARA PEGAR TODAS AS INFO DO PAINEL############
@@ -318,7 +367,7 @@ def get_pergunta():
 
 ####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST############
 @app.route('/api/checklists/get_data/perguntas/', methods=['GET'])
-def get_perguntas():
+def get_all_perguntas():
     Account_Checklist = str(request.args['Account'])
     Account_Checklist = Account_Checklist.split('/')
     User_id = Account_Checklist[0]
