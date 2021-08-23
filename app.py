@@ -516,7 +516,7 @@ def get_user():
     user = db.collection('accounts').document(User_id).get()
     try:
         dict_pergunta = {'user_id': user.id,'cargo': user.get('cargo'),
-                'name': user.get('name'),'email': user.get('email'),
+                'UserName': user.get('name'),'email': user.get('email'),
                 'equipes_salvas': user.get('equipes_salvas'),
             }
         response = jsonify(dict_pergunta)
