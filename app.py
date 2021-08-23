@@ -32,7 +32,7 @@ def edit_checklist():
         db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
     """
 
-    return str(json_data_edit_checklist)
+    return json_data_edit_checklist
 
 
 
