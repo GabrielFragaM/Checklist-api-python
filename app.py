@@ -19,20 +19,20 @@ db = firestore.client()
 @app.route('/api/checklists/edit_data/checklist/', methods=['POST'])
 def edit_checklist():
     json_data_edit_checklist = jsonify(request.json)
-    User_id = json_data_edit_checklist['user_id']
-    checklist = json_data_edit_checklist['uid_checklist']
-    descricao = json_data_edit_checklist['descricao']
-    observacao = json_data_edit_checklist['observacao']
-    title = json_data_edit_checklist['title']
+    """ User_id = json_data_edit_checklist['user_id']
+        checklist = json_data_edit_checklist['uid_checklist']
+        descricao = json_data_edit_checklist['descricao']
+        observacao = json_data_edit_checklist['observacao']
+        title = json_data_edit_checklist['title']
 
-    dict_checklists = { 'descricao': descricao, 
-        'observacao': observacao, 'title': title}
+        dict_checklists = { 'descricao': descricao, 
+            'observacao': observacao, 'title': title}
 
-    #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
-    db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
-   
+        #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
+        db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
+    """
 
-    return str(checklist)
+    return str(json_data_edit_checklist)
 
 
 
