@@ -13,7 +13,8 @@ cred = credentials.Certificate('checklist_firebase.json')
 initialize_app(cred, {'storageBucket': 'gererador-qr-code.appspot.com'})
 db = firestore.client()
 
-#################CRUD API#######################
+#################CRUD API#################################
+
 
 ####METODO EDITAR CHECKLIST############
 @app.route('/api/checklists/edit_data/checklist/', methods=['PUT'])
@@ -35,11 +36,11 @@ def edit_checklist():
             pass
         response = jsonify({'message':'Editado com sucesso.'})
         return response, 200
-    except:
-        response = jsonify({'message':'Não foi possível editar a checklist.'})
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível editar a checklist.' + str(e)})
         return response, 500
 
-####METODO EDITAR CHECKLIST############
+####METODO DELETAR CHECKLIST############
 @app.route('/api/checklists/delete_data/checklist/', methods=['GET'])
 def detele_checklist():
     try:
@@ -64,12 +65,11 @@ def detele_checklist():
         return response, 500
 
 ####METODO CRIAR CHECKLIST############
-@app.route('/api/checklists/create_data/checklist/', methods=['PUT'])
+@app.route('/api/checklists/create_data/checklist/', methods=['POST'])
 def create_checklist():
     try:
         json_data_edit_checklist = request.json
         User_id = json_data_edit_checklist['user_id']
-        checklist = json_data_edit_checklist['checklist_id']
         descricao = json_data_edit_checklist['descricao']
         observacao = json_data_edit_checklist['observacao']
         title = json_data_edit_checklist['title']
@@ -92,6 +92,8 @@ def create_checklist():
     except Exception as e:
         response = jsonify({'message':'Não foi possível criar uma checklist. Mais detalhes: ' + str(e)})
         return response, 500
+############################################################
+
 
 ################ACESSAR DADOS DO FIREBASE####################
 
