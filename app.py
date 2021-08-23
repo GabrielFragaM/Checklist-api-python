@@ -33,14 +33,10 @@ def edit_checklist():
         return response, 500
         
 
-
-
-
-
 ################ACESSAR DADOS DO FIREBASE####################
 
 #####METODO PARA PEGAR TODAS AS VERIFICACOES############
-@app.route('/api/verificacoes/get_data/', methods=['GET', 'POST'])
+@app.route('/api/verificacoes/get_data/', methods=['GET'])
 def get_all_verificacoes():
     Account_Verificacoes = str(request.args['Account'])
     list_verificacoes = []
@@ -90,7 +86,7 @@ def get_all_verificacoes():
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
 ####METODO PARA PEGAR UMA VERIFICACAO############
-@app.route('/api/verificacoes/get_data/verificacao/', methods=['GET', 'POST'])
+@app.route('/api/verificacoes/get_data/verificacao/', methods=['GET'])
 def get_verificacao():
     Account_Verificacoe = str(request.args['Account'])
     Account_Checklist = Account_Verificacoes = str(request.args['Account']).split('/')
@@ -142,32 +138,38 @@ def get_verificacao():
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
 ####METODO PARA PEGAR TODAS AS CHECKLISTS############
-@app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
+@app.route('/api/checklists/get_data/', methods=['GET'])
 def get_all_checklists():
     Account_Checklists = str(request.args['Account'])
     dict_checklists = {}
     list_checklists = []
+    list_perguntas = []
     #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
     Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').get()
     try:
         for c in Checklists:
             perguntas_Checklists = db.collection('accounts').document(Account_Checklists).collection('checklists').document(c.id).collection('perguntas').get()
-
+            for p in perguntas_Checklists:
+                details_perguntas = db.collection('accounts').document(Account_Checklists).collection('checklists').document(c.id).collection('perguntas').document(p.id).get()
+                list_perguntas.append({'uid_pergunta': p.id,'pergunta': details_perguntas.get('pergunta'),
+                    'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
+                })
             dict_checklists = {'uid_checklist': c.id, 'CategoriasID': c.get('CategoriasID'), 
             'deleted_categoria': c.get('deleted_categoria'), 'descricao': c.get('descricao'), 
-            'observacao': c.get('observacao'), 'title': c.get('title'), 'itens': len(perguntas_Checklists),}
+            'observacao': c.get('observacao'), 'title': c.get('title'), 'itens': len(perguntas_Checklists),'perguntas': list_perguntas,}
             list_checklists.append(dict_checklists)
+            list_perguntas = []
         json_list = json.dumps(list_checklists)
         return json_list
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
 ####METODO PARA PEGAR UMA CHECKLIST############
-@app.route('/api/checklists/get_data/checklist/', methods=['GET', 'POST'])
+@app.route('/api/checklists/get_data/checklist/', methods=['GET'])
 def get_checklist():
     Account_Checklist = str(request.args['Account'])
     Account_Checklist = Account_Checklist.split('/')
-
+    list_perguntas = []
     User_id = Account_Checklist[0]
     checklist = Account_Checklist[1]
     
@@ -175,15 +177,20 @@ def get_checklist():
     Checklist_Firebase = db.collection('accounts').document(User_id).collection('checklists').document(checklist).get()
     perguntas_Checklists = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').get()
     try:
+        for p in perguntas_Checklists:
+            details_perguntas = db.collection('accounts').document(User_id).collection('checklists').document(checklist).collection('perguntas').document(p.id).get()
+            list_perguntas.append({'uid_pergunta': p.id,'pergunta': details_perguntas.get('pergunta'),
+                'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
+            })
         dict_checklists = {'uid_checklist': Checklist_Firebase.id, 'CategoriasID': Checklist_Firebase.get('CategoriasID'), 
         'deleted_categoria': Checklist_Firebase.get('deleted_categoria'), 'descricao': Checklist_Firebase.get('descricao'), 
-        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists)}
+        'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists), 'perguntas': list_perguntas,}
         return dict_checklists
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
 ####METODO PARA PEGAR UMA PERGUNTA DE UMA CHECKLIST############
-@app.route('/api/checklists/get_data/perguntas/get/', methods=['GET', 'POST'])
+@app.route('/api/checklists/get_data/perguntas/get/', methods=['GET'])
 def get_pergunta():
     Account_Checklist = str(request.args['Account'])
     Account_Checklist = Account_Checklist.split('/')
@@ -202,7 +209,7 @@ def get_pergunta():
         return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
 
 ####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST############
-@app.route('/api/checklists/get_data/perguntas/', methods=['GET', 'POST'])
+@app.route('/api/checklists/get_data/perguntas/', methods=['GET'])
 def get_perguntas():
     Account_Checklist = str(request.args['Account'])
     Account_Checklist = Account_Checklist.split('/')
@@ -223,7 +230,7 @@ def get_perguntas():
         return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
 
 ####METODO PARA LOGAR UM USUARIO DO FIREBASE############
-@app.route('/api/accounts/get_data/', methods=['GET', 'POST'])
+@app.route('/api/accounts/get_data/', methods=['GET'])
 def get_data_accounts():
     Account = str(request.args['Account'])
     Account = Account.split('/')
