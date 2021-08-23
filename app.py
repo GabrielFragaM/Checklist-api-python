@@ -161,8 +161,7 @@ def get_data_checklists():
 
     return jsonify(dict_json)
 
-
-####METODO PARA PEGAR TODAS AS VERIFICACOES DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR TODAS AS VERIFICACOES############
 @app.route('/api/verificacoes/get_data/', methods=['GET', 'POST'])
 def get_all_verificacoes():
     Account_Verificacoes = str(request.args['Account'])
@@ -212,7 +211,7 @@ def get_all_verificacoes():
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
-####METODO PARA PEGAR TODAS AS VERIFICACOES DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR UMA VERIFICACAO############
 @app.route('/api/verificacoes/get_data/verificacao/', methods=['GET', 'POST'])
 def get_verificacao():
     Account_Verificacoe = str(request.args['Account'])
@@ -264,8 +263,7 @@ def get_verificacao():
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
-
-####METODO PARA PEGAR TODAS AS CHECKLISTS DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR TODAS AS CHECKLISTS############
 @app.route('/api/checklists/get_data/', methods=['GET', 'POST'])
 def get_all_checklists():
     Account_Checklists = str(request.args['Account'])
@@ -286,7 +284,7 @@ def get_all_checklists():
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
-####METODO PARA PEGAR UMA CHECKLIST DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR UMA CHECKLIST############
 @app.route('/api/checklists/get_data/checklist/', methods=['GET', 'POST'])
 def get_checklist():
     Account_Checklist = str(request.args['Account'])
@@ -306,7 +304,7 @@ def get_checklist():
     except Exception as e:
         return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' + str(e)
 
-####METODO PARA PEGAR UMA PERGUNTA DE UMA CHECKLIST DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR UMA PERGUNTA DE UMA CHECKLIST############
 @app.route('/api/checklists/get_data/perguntas/get/', methods=['GET', 'POST'])
 def get_pergunta():
     Account_Checklist = str(request.args['Account'])
@@ -325,7 +323,7 @@ def get_pergunta():
     except Exception as e:
         return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
 
-####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST DO USUARIO DO FIREBASE############
+####METODO PARA PEGAR TODAS PERGUNTAS DE UMA CHECKLIST############
 @app.route('/api/checklists/get_data/perguntas/', methods=['GET', 'POST'])
 def get_perguntas():
     Account_Checklist = str(request.args['Account'])
@@ -359,11 +357,14 @@ def get_data_accounts():
         account = db.collection('accounts').document(user.uid).get()
         if (account.get('password') == password):
             dict_account_auth = {'Id': user.uid, 'Email': email, 'UserName': account.get('name')}
-            return dict_account_auth
+            response = jsonify(dict_account_auth)
+            return response, 200
         else:
-            return 'Usuário ou senha incorretos.'
+            response = jsonify({'message':'Usuário ou senha incorretos.'})
+            return response, 401
     except:
-        return 'Usuário ou senha incorretos.'
+        response = jsonify({'message':'Usuário ou senha incorretos.'})
+        return response, 401
 
 
 if __name__ == '__main__':
