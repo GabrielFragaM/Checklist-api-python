@@ -147,7 +147,7 @@ def create_pergunta():
     try:
         json_data_edit_checklist = request.json
         User_id = json_data_edit_checklist['user_id']
-        checklist = json_data_edit_checklist['checklist']
+        checklist = json_data_edit_checklist['uid_checklist']
         images = json_data_edit_checklist['images']
         observacao = json_data_edit_checklist['observacao']
         pergunta = json_data_edit_checklist['pergunta']
