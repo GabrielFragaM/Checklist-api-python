@@ -491,15 +491,10 @@ def get_all_perguntas():
 def get_data_accounts():
     Account = str(request.args['Account'])
     Account = Account.split('/')
-    uid = Account[0]
-    email = Account[1]
-    password = Account[2]
+    email = Account[0]
+    password = Account[1]
     try:
-        user = auth.update_user(
-            uid,
-            email=email,
-            password= password,)
-
+        user = auth.get_user_by_email(email)
         account = db.collection('accounts').document(user.uid).get()
         if (account.get('password') == password):
             dict_account_auth = {'Id': user.uid, 'Email': email, 'UserName': account.get('name')}
