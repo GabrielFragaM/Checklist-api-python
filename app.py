@@ -18,7 +18,7 @@ db = firestore.client()
 ####METODO EDITAR CHECKLIST############
 @app.route('/api/checklists/edit_data/checklist/', methods=['POST'])
 def edit_checklist():
-    """json_data_edit_checklist = Flask.request.json
+    json_data_edit_checklist = jsonify(request.json)
     User_id = json_data_edit_checklist['user_id']
     checklist = json_data_edit_checklist['uid_checklist']
     descricao = json_data_edit_checklist['descricao']
@@ -31,8 +31,8 @@ def edit_checklist():
     #####ESTRUTURANDO OS DADOS DA CHECKLIST####################
     db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
    
-"""
-    return jsonify(request.json)
+
+    return str(checklist)
 
 
 
