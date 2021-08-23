@@ -286,7 +286,7 @@ def get_all_verificacoes():
         response = jsonify(list_verificacoes)
         return response, 200
     except Exception as e:
-        response = jsonify({'message': 'Erro. Não foi possível acessar as verificações dessa conta.'})
+        response = jsonify({'message': 'Erro. Não foi possível acessar as verificações dessa conta.' + str(e)})
         return response, 500
 
 
@@ -556,7 +556,7 @@ def reset_password():
         user = auth.get_user_by_email(email)
         if(user.uid != ''):
             link =  auth.generate_password_reset_link(email)
-            response = jsonify({'link_reset':str(link)})
+            response = jsonify({'message':str(link)})
             return response, 200
         else:
             response = jsonify({'message':'Usuário não encontrado.'})
