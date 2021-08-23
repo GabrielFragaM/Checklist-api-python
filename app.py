@@ -64,6 +64,54 @@ def detele_checklist():
         response = jsonify({'message':'Não foi possível deletar a checklist. Mais detalhes: ' + str(e)})
         return response, 500
 
+####METODO DELETAR CONFORMES############
+@app.route('/api/painel/delete_data/conformes/', methods=['GET'])
+def detele_conformes():
+    try:
+        User_id = str(request.args['Account'])
+     
+        try:
+            db.collection('accounts').document(User_id).collection('conformes').delete()
+        except:
+            pass
+        response = jsonify({'message':'Todos os Conformes foram deletados com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível deletar todos os Conformes. Mais detalhes: ' + str(e)})
+        return response, 500
+
+####METODO DELETAR NAO CONFORMES############
+@app.route('/api/painel/delete_data/nao_conformes/', methods=['GET'])
+def detele_nao_conformes():
+    try:
+        User_id = str(request.args['Account'])
+     
+        try:
+            db.collection('accounts').document(User_id).collection('nao_cpnformes').delete()
+        except:
+            pass
+        response = jsonify({'message':'Todos os Não Conformes foram deletados com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível deletar todos os Não Conformes. Mais detalhes: ' + str(e)})
+        return response, 500
+
+
+####METODO DELETAR NAO APLICAVEL############
+@app.route('/api/painel/delete_data/nao_aplicavel/', methods=['GET'])
+def detele_nao_aplicavel():
+    try:
+        User_id = str(request.args['Account'])
+     
+        try:
+            db.collection('accounts').document(User_id).collection('nao_aplicavel').delete()
+        except:
+            pass
+        response = jsonify({'message':'Todos os os itens Não Aplicáveis foram deletados com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível deletar todos os itens Não Aplicáveis. Mais detalhes: ' + str(e)})
+        return response, 500
 ####METODO DELETAR VERIFICACAO############
 @app.route('/api/verificacoes/delete_data/verificacao/', methods=['GET'])
 def detele_verificacao():
