@@ -20,7 +20,7 @@ db = firestore.client()
 def edit_checklist():
     json_data_edit_checklist = Flask.request.json
     User_id = json_data_edit_checklist['user_id']
-    checklist = json_data_edit_checklist['checklist_id']
+    checklist = json_data_edit_checklist['uid_checklist']
     descricao = json_data_edit_checklist['descricao']
     observacao = json_data_edit_checklist['observacao']
     title = json_data_edit_checklist['title']
@@ -32,7 +32,7 @@ def edit_checklist():
     db.collection('accounts').document(User_id).collection('checklists').document(checklist).update(dict_checklists)
    
 
-    return 'Erro. Não foi possível acessar as checklists dessa conta.\nMais detalhes: ' 
+    return json_data_edit_checklist 
 
 
 
