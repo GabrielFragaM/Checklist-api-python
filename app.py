@@ -42,6 +42,27 @@ def edit_checklist():
 
 ################ACESSAR DADOS DO FIREBASE####################
 
+
+#####METODO PARA PEGAR TODAS AS INFO DO PAINEL############
+@app.route('/api/painel/get_data/', methods=['GET'])
+def get_dashbord():
+    Account_Verificacoes = str(request.args['Account'])
+    try:
+        verificacoes = db.collection('accounts').document(Account_Verificacoes).collection('verificacoes').get()
+        for v in verificacoes:
+            itens = v.get('total_c') + v.get('total_nc') + v.get('total_na')
+        conformes = db.collection('accounts').document(Account_Verificacoes).collection('conformes').get()
+        nao_conformes = db.collection('accounts').document(Account_Verificacoes).collection('nao_conformes').get()
+        nao_aplicavel = db.collection('accounts').document(Account_Verificacoes).collection('nao_aplicavel').get()
+        planos_de_acao = db.collection('accounts').document(Account_Verificacoes).collection('planos_de_acao').get()
+        
+        dict_painel = {'conformes': len(conformes) / itens* 100, 'nao_conformes': len(nao_conformes) / itens * 100, 'planos_de_acao': len(planos_de_acao) / itens * 100, 'nao_aplicavel': len(nao_aplicavel) / itens * 100}
+       
+        return dict_painel
+
+    except Exception as e:
+        return 'Erro. Não foi possível acessar o painel dessa conta.\nMais detalhes: ' + str(e)
+
 #####METODO PARA PEGAR TODAS AS VERIFICACOES############
 @app.route('/api/verificacoes/get_data/', methods=['GET'])
 def get_all_verificacoes():
