@@ -174,6 +174,7 @@ def create_pergunta():
 @app.route('/api/painel/get_data/', methods=['GET'])
 def get_dashbord():
     Account_Verificacoes = str(request.args['Account'])
+    itens = 0
     try:
         verificacoes = db.collection('accounts').document(Account_Verificacoes).collection('verificacoes').get()
         for v in verificacoes:
@@ -339,6 +340,7 @@ def get_checklist():
             list_perguntas.append({'uid_pergunta': p.id,'pergunta': details_perguntas.get('pergunta'),
                 'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
             })
+
         dict_checklists = {'uid_checklist': Checklist_Firebase.id, 'CategoriasID': Checklist_Firebase.get('CategoriasID'), 
         'deleted_categoria': Checklist_Firebase.get('deleted_categoria'), 'descricao': Checklist_Firebase.get('descricao'), 
         'observacao': Checklist_Firebase.get('observacao'), 'title': Checklist_Firebase.get('title'), 'itens': len(perguntas_Checklists), 'perguntas': list_perguntas,}
@@ -407,6 +409,61 @@ def get_data_accounts():
     except:
         response = jsonify({'message':'Usuário ou senha incorretos.'})
         return response, 401
+
+####METODO PARA OS DETALHES DE UM USUARIO DO FIREBASE############
+@app.route('/api/accounts/get_data/account/get/', methods=['GET'])
+def get_user():
+    Account_Checklist = str(request.args['Account'])
+    User_id = Account_Checklist
+
+    user = db.collection('accounts').document(User_id).get()
+    try:
+        dict_pergunta = {'user_id': user.id,'cargo': user.get('cargo'),
+                'name': user.get('name'),'email': user.get('email'),'password': user.get('password'),
+                'equipes_salvas': user.get('equipes_salvas'),
+            }
+        return dict_pergunta
+    except Exception as e:
+        return 'Erro. Não foi possível acessar as perguntas dessa Checklist.\nMais detalhes: ' + str(e)
+
+####METODO PARA EDITAR A CONTA DO USUÁRIO############
+@app.route('/api/accounts/edit_data/account/', methods=['PUT'])
+def edit_user():
+    try:
+        json_data_edit_user = request.json
+        User_id = json_data_edit_user['user_id']
+        cargo = json_data_edit_user['cargo']
+        name = json_data_edit_user['name']
+        email = json_data_edit_user['email']
+    
+        try:
+            db.collection('accounts').document(User_id).update(json_data_edit_user)
+        except:
+            pass
+        response = jsonify({'message':'Editado com sucesso.'})
+        return response, 200
+    except Exception as e:
+        response = jsonify({'message':'Não foi possível editar.' + str(e)})
+        return response, 500
+
+####METODO PARA RESETAR A SENHA DO USUÁRIO############
+@app.route('/api/accounts/reset_pass/account/', methods=['GET'])
+def reset_password():
+    email = str(request.args['Account'])
+    email = email
+
+    try:
+        user = auth.get_user_by_email(email)
+        if(user.uid != ''):
+            link =  auth.generate_password_reset_link(email)
+            response = jsonify({'link_reset':str(link)})
+            return response, 200
+        else:
+            response = jsonify({'message':'Usuário não encontrado.'})
+            return response, 500
+    except Exception as e:
+        response = jsonify({'message':'Erro Usuário não encontrado ou não existe. Mais detalhes' + str(e)})
+        return response, 500
 
 
 if __name__ == '__main__':
