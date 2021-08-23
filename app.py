@@ -480,8 +480,7 @@ def get_all_perguntas():
             list_perguntas.append({'uid_pergunta': p.id,'pergunta': details_perguntas.get('pergunta'),
                 'observacao': details_perguntas.get('observacao'),'images': details_perguntas.get('images'),
             })
-        json_list = json.dumps(list_perguntas)
-        response = jsonify(json_list)
+        response = jsonify(list_perguntas)
         return response, 200
     except Exception as e:
         response = jsonify({'message': 'Erro. Não foi possível acessar os Itens dessa conta.'})
